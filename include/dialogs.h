@@ -130,6 +130,7 @@ enum UI_ITEMS {
     NETUPD_BTN_START,
     NETUPD_BTN_CANCEL,
 #ifdef PADEMU
+    PADEMU_GLOBAL_BUTTON,
     PADCFG_PADEMU_SOURCE,
     PADCFG_PADEMU_CONFIG,
     PADCFG_PADEMU_ENABLE,
@@ -180,6 +181,7 @@ extern struct UIItem diaPadEmuInfo[];
 extern struct UIItem diaNetConfig[];
 extern struct UIItem diaUIConfig[];
 extern struct UIItem diaAudioConfig[];
+extern struct UIItem diaControllerConfig[];
 extern struct UIItem diaCompatConfig[];
 extern struct UIItem diaVMCConfig[];
 extern struct UIItem diaGSConfig[];

@@ -129,6 +129,7 @@ void guiShowAbout();
 void guiShowConfig();
 void guiShowUIConfig();
 void guiShowAudioConfig();
+void guiShowControllerConfig();
 void guiShowNetConfig();
 void guiShowParentalLockConfig();
 

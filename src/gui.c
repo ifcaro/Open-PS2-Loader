@@ -434,14 +434,10 @@ static int guiUpdater(int modified)
 
 void guiShowConfig()
 {
-    int value;
-
     // configure the enumerations
-    const char *selectButtons[] = {_l(_STR_CIRCLE), _l(_STR_CROSS), NULL};
     const char *deviceNames[] = {_l(_STR_BDM_GAMES), _l(_STR_NET_GAMES), _l(_STR_HDD_GAMES), NULL};
     const char *deviceModes[] = {_l(_STR_OFF), _l(_STR_MANUAL), _l(_STR_AUTO), NULL};
 
-    diaSetEnum(diaConfig, CFG_SELECTBUTTON, selectButtons);
     diaSetEnum(diaConfig, CFG_DEFDEVICE, deviceNames);
     diaSetEnum(diaConfig, CFG_BDMMODE, deviceModes);
     diaSetEnum(diaConfig, CFG_HDDMODE, deviceModes);
@@ -461,7 +457,6 @@ void guiShowConfig()
     diaSetVisible(diaConfig, CFG_AUTOSTARTLAST, gRememberLastPlayed);
     diaSetVisible(diaConfig, CFG_LBL_AUTOSTARTLAST, gRememberLastPlayed);
 
-    diaSetInt(diaConfig, CFG_SELECTBUTTON, gSelectButton == KEY_CIRCLE ? 0 : 1);
     diaSetInt(diaConfig, CFG_DEFDEVICE, gDefaultDevice);
     diaSetInt(diaConfig, CFG_BDMMODE, gBDMStartMode);
     diaSetInt(diaConfig, CFG_HDDMODE, gHDDStartMode);
@@ -483,10 +478,6 @@ void guiShowConfig()
         diaGetInt(diaConfig, CFG_LASTPLAYED, &gRememberLastPlayed);
         diaGetInt(diaConfig, CFG_AUTOSTARTLAST, &gAutoStartLastPlayed);
         DisableCron = 1; // Disable Auto Start Last Played counter (we don't want to call it right after enable it on GUI)
-        if (diaGetInt(diaConfig, CFG_SELECTBUTTON, &value))
-            gSelectButton = value == 0 ? KEY_CIRCLE : KEY_CROSS;
-        else
-            gSelectButton = KEY_CIRCLE;
         diaGetInt(diaConfig, CFG_DEFDEVICE, &gDefaultDevice);
         diaGetInt(diaConfig, CFG_HDDMODE, &gHDDStartMode);
         diaGetInt(diaConfig, CFG_ETHMODE, &gETHStartMode);
@@ -576,8 +567,6 @@ void guiShowUIConfig(void)
     showCfgPopup = 0;
     guiResetNotifications();
 
-    // configure the enumerations
-    const char *scrollSpeeds[] = {_l(_STR_SLOW), _l(_STR_MEDIUM), _l(_STR_FAST), NULL};
     // clang-format off
     const char *vmodeNames[] = {_l(_STR_AUTO)
         , "PAL 640x512i @50Hz 24bit"
@@ -597,11 +586,9 @@ void guiShowUIConfig(void)
 
 reselect_video_mode:
     previousVMode = gVMode;
-    diaSetEnum(diaUIConfig, UICFG_SCROLL, scrollSpeeds);
     diaSetEnum(diaUIConfig, UICFG_THEME, (const char **)thmGetGuiList());
     diaSetEnum(diaUIConfig, UICFG_LANG, (const char **)lngGetGuiList());
     diaSetEnum(diaUIConfig, UICFG_VMODE, vmodeNames);
-    diaSetInt(diaUIConfig, UICFG_SCROLL, gScrollSpeed);
     diaSetInt(diaUIConfig, UICFG_THEME, thmGetGuiValue());
     diaSetInt(diaUIConfig, UICFG_LANG, lngGetGuiValue());
     diaSetInt(diaUIConfig, UICFG_AUTOSORT, gAutosort);
@@ -617,7 +604,6 @@ reselect_video_mode:
 
     int ret = diaExecuteDialog(diaUIConfig, -1, 1, guiUIUpdater);
     if (ret) {
-        diaGetInt(diaUIConfig, UICFG_SCROLL, &gScrollSpeed);
         diaGetInt(diaUIConfig, UICFG_LANG, &langID);
         diaGetInt(diaUIConfig, UICFG_THEME, &themeID);
         if (themeID == 0) {
@@ -825,6 +811,36 @@ void guiShowAudioConfig(void)
     diaSetInt(diaAudioConfig, CFG_BOOT_SND_VOLUME, gBootSndVolume);
 
     diaExecuteDialog(diaAudioConfig, -1, 1, guiAudioUpdater);
+}
+
+void guiShowControllerConfig(void)
+{
+    int value;
+
+    // configure the enumerations
+    const char *scrollSpeeds[] = {_l(_STR_SLOW), _l(_STR_MEDIUM), _l(_STR_FAST), NULL};
+    const char *selectButtons[] = {_l(_STR_CIRCLE), _l(_STR_CROSS), NULL};
+
+    diaSetEnum(diaControllerConfig, UICFG_SCROLL, scrollSpeeds);
+    diaSetEnum(diaControllerConfig, CFG_SELECTBUTTON, selectButtons);
+
+    diaSetInt(diaControllerConfig, UICFG_SCROLL, gScrollSpeed);
+    diaSetInt(diaControllerConfig, CFG_SELECTBUTTON, gSelectButton == KEY_CIRCLE ? 0 : 1);
+
+    int result = diaExecuteDialog(diaControllerConfig, -1, 1, NULL);
+    if (result) {
+        diaGetInt(diaControllerConfig, UICFG_SCROLL, &gScrollSpeed);
+
+        if (diaGetInt(diaControllerConfig, CFG_SELECTBUTTON, &value))
+            gSelectButton = value == 0 ? KEY_CIRCLE : KEY_CROSS;
+        else
+            gSelectButton = KEY_CIRCLE;
+#ifdef PADEMU
+        if (result == PADEMU_GLOBAL_BUTTON)
+            guiGameShowPadEmuConfig(1);
+#endif
+        applyConfig(-1, -1);
+    }
 }
 
 int guiShowKeyboard(char *value, int maxLength)

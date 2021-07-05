@@ -13,7 +13,11 @@ void guiGameShowVMCMenu(int id, item_list_t *support);
 void guiGameShowCompatConfig(int id, item_list_t *support, config_set_t *configSet);
 void guiGameShowGSConfig(void);
 void guiGameShowCheatConfig(void);
-void guiGameShowPadEmuConfig(void);
+
+#ifdef PADEMU
+void guiGameShowPadEmuConfig(int forceGlobal);
+void guiGameSavePadEmuGlobalConfig(config_set_t *configGame);
+#endif
 
 void guiGameLoadConfig(item_list_t *support, config_set_t *configSet);
 int guiGameSaveConfig(config_set_t *configSet, item_list_t *support);
