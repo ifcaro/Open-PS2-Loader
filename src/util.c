@@ -41,64 +41,53 @@ static int checkMC()
 {
     int mc0_is_ps2card, mc1_is_ps2card;
     int mc0_has_folder, mc1_has_folder;
-    int memcardtype, dummy;
-    int i, ret;
-    static sceMcTblGetDir mc_direntry[MAX_ENTRY] __attribute__((aligned(64)));
 
     if (mcID == -1) {
-        mcSync(0, NULL, NULL);
-
-        mcGetInfo(0, 0, &memcardtype, &dummy, &dummy);
-        mcSync(0, NULL, &ret);
-        mc0_is_ps2card = (ret == -1 && memcardtype == 2);
-        mc0_has_folder = 0;
-
-        mcGetInfo(1, 0, &memcardtype, &dummy, &dummy);
-        mcSync(0, NULL, &ret);
-        mc1_is_ps2card = (ret == -1 && memcardtype == 2);
-        mc1_has_folder = 0;
-
-        if (mc0_is_ps2card) {
-            memset(mc_direntry, 0, sizeof(mc_direntry));
-            mcGetDir(0, 0, "*", 0, MAX_ENTRY - 2, mc_direntry);
-            mcSync(0, NULL, &ret);
-            for (i = 0; i < ret; i++) {
-                if (mc_direntry[i].AttrFile & sceMcFileAttrSubdir && !strcmp((char *)mc_direntry[i].EntryName, "OPL")) {
-                    mc0_has_folder = 1;
-                    break;
-                }
-            }
+        mc0_is_ps2card = 0;
+        DIR *mc0_root_dir = opendir("mc0:");
+        if (mc0_root_dir != NULL) {
+            closedir(mc0_root_dir);
+            mc0_is_ps2card = 1;
         }
 
-        if (mc1_is_ps2card) {
-            memset(mc_direntry, 0, sizeof(mc_direntry));
-            mcGetDir(1, 0, "*", 0, MAX_ENTRY - 2, mc_direntry);
-            mcSync(0, NULL, &ret);
-            for (i = 0; i < ret; i++) {
-                if (mc_direntry[i].AttrFile & sceMcFileAttrSubdir && !strcmp((char *)mc_direntry[i].EntryName, "OPL")) {
-                    mc1_has_folder = 1;
-                    break;
-                }
-            }
+        mc1_is_ps2card = 0;
+        DIR *mc1_root_dir = opendir("mc1:");
+        if (mc1_root_dir != NULL) {
+            closedir(mc1_root_dir);
+            mc1_is_ps2card = 1;
+        }
+
+        mc0_has_folder = 0;
+        DIR *mc0_opl_dir = opendir("mc0:OPL/");
+        if (mc0_opl_dir != NULL) {
+            closedir(mc0_opl_dir);
+            mc0_has_folder = 1;
+        }
+
+        mc1_has_folder = 0;
+        DIR *mc1_opl_dir = opendir("mc1:OPL/");
+        if (mc1_opl_dir != NULL) {
+            closedir(mc1_opl_dir);
+            mc1_has_folder = 1;
         }
 
         if (mc0_has_folder) {
-            mcID = 0x30;
+            mcID = '0';
             return mcID;
         }
 
         if (mc1_has_folder) {
-            mcID = 0x31;
+            mcID = '1';
             return mcID;
         }
 
         if (mc0_is_ps2card) {
-            mcID = 0x30;
+            mcID = '0';
             return mcID;
         }
 
         if (mc1_is_ps2card) {
-            mcID = 0x31;
+            mcID = '1';
             return mcID;
         }
     }
@@ -131,9 +120,8 @@ void checkMCFolder(void)
         return;
     }
 
-    mcSync(0, NULL, NULL);
-    mcMkDir(mcID & 1, 0, "OPL");
-    mcSync(0, NULL, NULL);
+    snprintf(path, sizeof(path), "mc%d:OPL/", mcID & 1);
+    mkdir(path, 0777);
 
     snprintf(path, sizeof(path), "mc%d:OPL/opl.icn", mcID & 1);
     fd = open(path, O_RDONLY, 0666);
@@ -169,21 +157,10 @@ static int checkFile(char *path, int mode)
 
         // in create mode, we check that the directory exist, or create it
         if (mode & O_CREAT) {
-            char dirPath[256];
-            char *pos = strrchr(path, '/');
-            if (pos) {
-                memcpy(dirPath, path + 4, (pos - path) - 4);
-                dirPath[(pos - path) - 4] = '\0';
-                int ret = 0;
-                mcSync(0, NULL, NULL);
-                mcMkDir(path[2] - '0', 0, dirPath);
-                mcSync(0, NULL, &ret);
-                if (ret < 0) {
-                    // If the error is that the folder already exists, just pass through
-                    if (ret != -4) {
-                        return 0;
-                    }
-                }
+            int res = mkdir(path, 0777);
+            // Non-standard POSIX check: the error value is supposed to be assigned to errno, not the return value
+            if (res >= 0 || res == -EEXIST) {
+                return 0;
             }
         }
     }
