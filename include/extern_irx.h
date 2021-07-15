@@ -148,6 +148,9 @@ extern int size_resetspu_irx;
 extern void *sio2man_irx;
 extern int size_sio2man_irx;
 
+extern void *mx4sio_bd_irx;
+extern int size_mx4sio_bd_irx;
+
 extern void *smap_irx;
 extern int size_smap_irx;
 

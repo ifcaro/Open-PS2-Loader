@@ -352,14 +352,15 @@ void sysExecExit(void)
 }
 
 // Module bits
-#define CORE_IRX_USB   0x01
-#define CORE_IRX_ETH   0x02
-#define CORE_IRX_SMB   0x04
-#define CORE_IRX_HDD   0x08
-#define CORE_IRX_VMC   0x10
-#define CORE_IRX_DEBUG 0x20
-#define CORE_IRX_DECI2 0x40
-#define CORE_IRX_ILINK 0x80
+#define CORE_IRX_USB    0x01
+#define CORE_IRX_ETH    0x02
+#define CORE_IRX_SMB    0x04
+#define CORE_IRX_HDD    0x08
+#define CORE_IRX_VMC    0x10
+#define CORE_IRX_DEBUG  0x20
+#define CORE_IRX_DECI2  0x40
+#define CORE_IRX_ILINK  0x80
+#define CORE_IRX_MX4SIO 0x100
 
 typedef struct
 {
@@ -439,6 +440,8 @@ static unsigned int sendIrxKernelRAM(const char *startup, const char *mode_str, 
         modules |= CORE_IRX_USB;
     else if (!strcmp(mode_str, "BDM_ILK_MODE"))
         modules |= CORE_IRX_ILINK;
+    else if (!strcmp(mode_str, "BDM_M4S_MODE"))
+        modules |= CORE_IRX_MX4SIO;
     else if (!strcmp(mode_str, "ETH_MODE"))
         modules |= CORE_IRX_ETH | CORE_IRX_SMB;
     else
@@ -481,6 +484,10 @@ static unsigned int sendIrxKernelRAM(const char *startup, const char *mode_str, 
         irxptr_tab[modcount++].ptr = (void *)&iLinkman_irx;
         irxptr_tab[modcount].info = size_IEEE1394_bd_irx | SET_OPL_MOD_ID(OPL_MODULE_ID_ILINKBD);
         irxptr_tab[modcount++].ptr = (void *)&IEEE1394_bd_irx;
+    }
+    if (modules & CORE_IRX_MX4SIO) {
+        irxptr_tab[modcount].info = size_mx4sio_bd_irx | SET_OPL_MOD_ID(OPL_MODULE_ID_MX4SIOBD);
+        irxptr_tab[modcount++].ptr = (void *)&mx4sio_bd_irx;
     }
     if (modules & CORE_IRX_ETH) {
         irxptr_tab[modcount].info = size_smap_ingame_irx | SET_OPL_MOD_ID(OPL_MODULE_ID_SMAP);
@@ -892,7 +899,7 @@ int sysExecElf(const char *path)
     elf_argv[0] = (char *)path;
 
     if (strncmp(path, "pfs", 3) == 0) {
-        snprintf(argv, sizeof(argv), "%s:%s", gOPLPart, elf_argv[0]);
+        snprintf(argv, sizeof(argv), gAPPPart[0] == '\0' ? "%s:%s" : "hdd0:%s:%s", gAPPPart[0] == '\0' ? gOPLPart : gAPPPart, elf_argv[0]);
         elf_argv[1] = argv;
         elf_argc++;
     }

@@ -62,6 +62,7 @@ int hddDeleteHDLGame(hdl_game_info_t *ginfo);
 void hddInit();
 item_list_t *hddGetObject(int initOnly);
 void hddLoadModules(void);
+void hddMountAppsPartition(void);
 
 extern char gOPLPart[128];
 

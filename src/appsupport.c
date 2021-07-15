@@ -125,8 +125,12 @@ static int appNeedsUpdate(void)
     if (oplShouldAppsUpdate())
         update = 1;
 
-    if (update)
+    if (update) {
         configApps = oplGetLegacyAppsConfig();
+
+        // Attempt to mount custom apps partition.
+        hddMountAppsPartition();
+    }
 
     return update;
 }

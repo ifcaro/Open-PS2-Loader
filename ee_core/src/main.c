@@ -53,6 +53,8 @@ static int eecoreInit(int argc, char **argv)
     p = _strtok(argv[i], " ");
     if (!_strncmp(argv[i], "BDM_ILK_MODE", 12))
         GameMode = BDM_ILK_MODE;
+    else if (!_strncmp(argv[i], "BDM_M4S_MODE", 12))
+        GameMode = BDM_M4S_MODE;
     else if (!_strncmp(p, "BDM_USB_MODE", 12))
         GameMode = BDM_USB_MODE;
     else if (!_strncmp(p, "ETH_MODE", 8))

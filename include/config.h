@@ -88,12 +88,14 @@ enum CONFIG_INDEX {
 #define CONFIG_OPL_ETH_MODE             "eth_mode"
 #define CONFIG_OPL_APP_MODE             "app_mode"
 #define CONFIG_OPL_ENABLE_FW            "enable_firewire"
+#define CONFIG_OPL_ENABLE_MX4SIO        "enable_mx4sio"
 #define CONFIG_OPL_SWAP_SEL_BUTTON      "swap_select_btn"
 #define CONFIG_OPL_PARENTAL_LOCK_PWD    "parental_lock_password"
 #define CONFIG_OPL_SFX                  "enable_sfx"
 #define CONFIG_OPL_BOOT_SND             "enable_boot_snd"
 #define CONFIG_OPL_SFX_VOLUME           "sfx_volume"
 #define CONFIG_OPL_BOOT_SND_VOLUME      "boot_snd_volume"
+#define CONFIG_OPL_HDD_APP_PART         "hdd_app_partition"
 
 // Network config keys
 #define CONFIG_NET_ETH_LINKM   "eth_linkmode"

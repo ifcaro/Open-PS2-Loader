@@ -115,6 +115,7 @@ extern int gETHStartMode;
 extern int gAPPStartMode;
 
 extern int gEnableFW;
+extern int gEnableMX4SIO;
 
 extern int gAutosort;
 extern int gAutoRefresh;
@@ -183,6 +184,8 @@ extern unsigned char gDefaultBgColor[3];
 extern unsigned char gDefaultTextColor[3];
 extern unsigned char gDefaultSelTextColor[3];
 extern unsigned char gDefaultUITextColor[3];
+
+extern char gAPPPart[128];
 
 void setDefaultColors(void);
 

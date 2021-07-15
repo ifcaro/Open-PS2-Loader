@@ -301,3 +301,6 @@ Release
 Developer
 Description
 BDM Games
+HDD Applications Partition
+Leave blank to use OPL partition for APPS.
+Select Block Devices

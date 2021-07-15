@@ -24,6 +24,7 @@ static base_game_info_t *bdmGames;
 static char bdmDriver[5];
 
 static int fireWireModLoaded = 0;
+static int mx4sioModLoaded = 0;
 
 // forward declaration
 static item_list_t bdmGameList;
@@ -77,6 +78,13 @@ static void bdmLoadBlockDeviceModules(void)
         sysLoadModuleBuffer(&IEEE1394_bd_irx, size_IEEE1394_bd_irx, 0, NULL);
 
         fireWireModLoaded = 1;
+    }
+
+    if (gEnableMX4SIO && !mx4sioModLoaded) {
+        // Load MX4SIO Block Device drivers
+        sysLoadModuleBuffer(&mx4sio_bd_irx, size_mx4sio_bd_irx, 0, NULL);
+
+        mx4sioModLoaded = 1;
     }
 }
 
@@ -378,6 +386,8 @@ static void bdmLaunchGame(int id, config_set_t *configSet)
         sysLaunchLoaderElf(filename, "BDM_USB_MODE", irx_size, irx, size_mcemu_irx, &bdm_mcemu_irx, EnablePS2Logo, compatmask);
     else if (!strcmp(bdmDriver, "sd") && strlen(bdmDriver) == 2)
         sysLaunchLoaderElf(filename, "BDM_ILK_MODE", irx_size, irx, size_mcemu_irx, &bdm_mcemu_irx, EnablePS2Logo, compatmask);
+    else if (!strcmp(bdmDriver, "sdc") && strlen(bdmDriver) == 3)
+        sysLaunchLoaderElf(filename, "BDM_M4S_MODE", irx_size, irx, size_mcemu_irx, &bdm_mcemu_irx, EnablePS2Logo, compatmask);
 }
 
 static config_set_t *bdmGetConfig(int id)
